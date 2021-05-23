@@ -1,4 +1,4 @@
-defmodule Cointrader.Exchanges.Client do
+defmodule Cointrader.Exchanges.Client do #behaviour module (generic part)
   use GenServer
 
   @type t :: %__MODULE__{
@@ -8,6 +8,7 @@ defmodule Cointrader.Exchanges.Client do
     currency_pairs: [String.t()]
   }
 
+  # set expections from callback module (specific parts)
   @callback exchange_name() :: String.t()
   @callback server_host() :: list()
   @callback server_port :: integer()

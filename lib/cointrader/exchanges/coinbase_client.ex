@@ -1,13 +1,12 @@
-defmodule Cointrader.Exchanges.CoinbaseClient do
+defmodule Cointrader.Exchanges.CoinbaseClient do #callback module (specific part)
   alias Cointrader.{Trade, Product}
   alias Cointrader.Exchanges.Client
   import Client, only: [validate_required: 2]
 
-  @behaviour Client
+  @behaviour Client #behaviour module reference
 
-  @impl true
+  @impl true # expose callback
   def exchange_name, do: "coinbase"
-
 
   @impl true
   def server_host, do: 'ws-feed.pro.coinbase.com'
