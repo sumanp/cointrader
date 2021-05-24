@@ -34,7 +34,7 @@ defmodule Cointrader.Exchanges.Client do #behaviour module (generic part)
       def available_currency_pairs, do: unquote(currency_pairs)
 
       def handle_ws_message(msg, client) do # generic or default handle websocket message callback. kicks in when specific client implementation absent
-        Logger.debug("handle_ws_message: inspect(msg)")
+        Logger.debug("handle_ws_message: #{inspect(msg)}")
         {:noreply, client}
       end
 
