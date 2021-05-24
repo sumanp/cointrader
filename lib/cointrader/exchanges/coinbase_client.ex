@@ -1,18 +1,26 @@
 defmodule Cointrader.Exchanges.CoinbaseClient do #callback module (specific part)
   alias Cointrader.{Trade, Product}
   alias Cointrader.Exchanges.Client
-  import Client, only: [validate_required: 2]
+  require Client
 
-  @behaviour Client #behaviour module reference
+  # Call macro with below params, present in the Client module
+  Client.defclient exchange_name: "coinbase",
+    host: 'ws-feed.pro.coinbase.com',
+    port: 443,
+    currency_pairs: ["BTC-USD", "ETH-USD", "LTC-USD",
+                      "BTC-EUR", "ETH-EUR", "LTC-EUR" ]
 
-  @impl true # expose callback
-  def exchange_name, do: "coinbase"
 
   @impl true
-  def server_host, do: 'ws-feed.pro.coinbase.com'
+  def subscription_frames(currency_pairs) do
+    msg = %{
+      "type" => "subscribe",
+      "product_ids" => currency_pairs,
+      "channels" => ["ticker"]
+    } |> Jason.encode!()
+    [{:text, msg}]
+  end
 
-  @impl true
-  def server_port, do: 443
 
   @impl true
   def handle_ws_message(%{"type" => "ticker"}=msg, state) do
@@ -28,15 +36,6 @@ defmodule Cointrader.Exchanges.CoinbaseClient do #callback module (specific part
     {:noreply, state}
   end
 
-  @impl true
-  def subscription_frames(currency_pairs) do
-    msg = %{
-      "type" => "subscribe",
-      "product_ids" => currency_pairs,
-      "channels" => ["ticker"]
-    } |> Jason.encode!()
-    [{:text, msg}]
-  end
 
   @spec message_to_trade(map) :: {:ok, Trade.t()} | {:error, any()}
   def message_to_trade(msg) do

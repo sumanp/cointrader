@@ -5,7 +5,7 @@ defmodule Cointrader.Exchanges.Client do #behaviour module (generic part)
     module: module(),
     conn: pid(),
     conn_ref: reference(),
-    currency_pairs: [String.t()]
+    currency_pairs: [String.t()],
   }
 
   # set expections from callback module (specific parts)
@@ -16,6 +16,31 @@ defmodule Cointrader.Exchanges.Client do #behaviour module (generic part)
   @callback handle_ws_message(map(), t()) :: any()
 
   defstruct [:module, :conn, :conn_ref, :currency_pairs]
+
+  defmacro defclient(options) do #macros are used for meta-programming. Careful!
+    exchange_name = Keyword.fetch!(options, :exchange_name)
+    host = Keyword.fetch!(options, :host)
+    port = Keyword.fetch!(options, :port)
+    currency_pairs = Keyword.fetch!(options, :currency_pairs)
+
+    quote do #code we want to inject
+      @behaviour unquote(__MODULE__)  # behaviour module reference
+      import unquote(__MODULE__), only: [validate_required: 2] #import client fuction
+      require Logger
+
+      def exchange_name, do: unquote(exchange_name)
+      def server_host, do: unquote(host)
+      def server_port, do: unquote(port)
+      def available_currency_pairs, do: unquote(currency_pairs)
+
+      def handle_ws_message(msg, client) do # generic or default handle websocket message callback. kicks in when specific client implementation absent
+        Logger.debug("handle_ws_message: inspect(msg)")
+        {:noreply, client}
+      end
+
+      defoverridable [handle_ws_message: 2] # make default function overrideable incase its defined in the specific client module
+    end
+  end
 
   def start_link(module, currency_pairs, options \\[]) do
     GenServer.start_link(__MODULE__, {module, currency_pairs}, options)
