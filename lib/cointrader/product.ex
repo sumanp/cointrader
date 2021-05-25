@@ -13,4 +13,12 @@ defmodule Cointrader.Product do
       currency_pair: currency_pair
     }
   end
+
+  # Protocols are a mechanism to achieve polymorphism in Elixir.
+  # protocols allow us to extend the original behavior for as many data types as we need
+  defimpl String.Chars do
+    def to_string(product) do
+      product.exchange_name <> ":" <> product.currency_pair
+    end
+  end
 end
