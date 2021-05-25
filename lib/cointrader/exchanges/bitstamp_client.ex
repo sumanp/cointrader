@@ -1,5 +1,5 @@
 defmodule Cointrader.Exchanges.BitstampClient do
-  alias Cointrader.{Trade, Product}
+  alias Cointrader.{Trade, Product, Exchanges}
   alias Cointrader.Exchanges.Client
   require Client
 
@@ -27,10 +27,8 @@ defmodule Cointrader.Exchanges.BitstampClient do
 
   @impl true
   def handle_ws_message(%{"event" => "trade"}=msg, state) do
-    msg
-      |> message_to_trade()
-      |> IO.inspect(label: "bitstamp")
-
+    {:ok, trade } = message_to_trade(msg) #crash process if pattern match fails
+    Exchanges.broadcast(trade)
     {:noreply, state}
   end
 
@@ -45,14 +43,15 @@ defmodule Cointrader.Exchanges.BitstampClient do
   do
 
     with :ok <- validate_required(data, ["amount_str", "price_str", "timestamp"]),
-          {:ok, traded_at} <- timestamp_to_datetime(data["timestamp"])
-    do
-      Trade.new(
-        product: Product.new(exchange_name(), currency_pair),
-        price: data["price_str"],
-        volume: data["amount_str"],
-        traded_at: traded_at
-      )
+      {:ok, traded_at} <- timestamp_to_datetime(data["timestamp"]) do
+      { :ok,
+        Trade.new(
+          product: Product.new(exchange_name(), currency_pair),
+          price: data["price_str"],
+          volume: data["amount_str"],
+          traded_at: traded_at
+        )
+      }
     else
       {:error, _reason}=error -> error
     end
