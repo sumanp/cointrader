@@ -14,6 +14,11 @@ defmodule Cointrader.Historical do
     GenServer.call(pid, {:get_last_trade, product})
   end
 
+  @spec get_last_trades(pid() | atom(), [Product.t()]) :: [Trade.t()]
+  def get_last_trades(pid\\__MODULE__, products) do
+    GenServer.call(pid, {:get_last_trades, products})
+  end
+
   def start_link(opts) do
     {products, opts} = Keyword.pop(opts, :products, []) # defaults to empty list if opts absent
     GenServer.start_link(__MODULE__, products, opts)
@@ -38,6 +43,11 @@ defmodule Cointrader.Historical do
   def handle_call({:get_last_trade, product}, _from, historical) do # call expects 3 arguments
     trade = Map.get(historical.trades, product)
     {:reply, trade, historical}
+  end
+
+  def handle_call({:get_last_trades, products}, _from, historical) do # call expects 3 arguments
+    trades = Enum.map(products, &Map.get(historical.trades, &1))
+    {:reply, trades, historical}
   end
 
 end
