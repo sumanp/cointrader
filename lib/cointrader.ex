@@ -12,4 +12,9 @@ defmodule Cointrader do
 
   defdelegate unsubscribe_from_trades(product),
     to: Cointrader.Exchanges, as: :unsubscribe
+
+  defdelegate get_last_trade(product), to: Cointrader.Historical
+
+  defdelegate get_last_trades(products), to: Cointrader.Historical
+
 end
