@@ -1,6 +1,22 @@
 defmodule Cointrader.Exchanges do # Exchange context public functions
   alias Cointrader.{Product, Trade}
 
+  @clients [ #module attribute
+    Cointrader.Exchanges.CoinbaseClient,
+    Cointrader.Exchanges.BitstampClient
+  ]
+
+  # static list, compute only once, at compile time
+  @available_products (for client <- @clients, pair <- client.available_currency_pairs() do
+    Product.new(client.exchange_name(), pair)
+  end)
+
+  @spec clients() :: [module()]
+  def clients, do: @clients
+
+  @spec available_products() :: [Product.t()]
+  def available_products(), do: @available_products
+
   @spec subscribe(Product.t()) :: :ok | {:error, term()}
   def subscribe(product) do
     Phoenix.PubSub.subscribe(Cointrader.PubSub, topic(product))
