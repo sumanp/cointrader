@@ -17,4 +17,6 @@ defmodule Cointrader do
 
   defdelegate get_last_trades(products), to: Cointrader.Historical
 
+  defdelegate available_products(), to: Cointrader.Exchanges
+
 end
