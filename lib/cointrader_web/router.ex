@@ -17,7 +17,6 @@ defmodule CointraderWeb.Router do
   scope "/", CointraderWeb do
     pipe_through :browser
 
-    # live "/", PageLive, :index
     get "/", ProductController, :index
   end
 
