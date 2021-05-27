@@ -86,7 +86,7 @@ defmodule Cointrader.HistoricalTest do
 
   #     assert is_nil( Historical.get_last_trade(historical, bitstamp_product) )
   #   end
-  end
+  # end
 
 
   defp all_products, do: Exchanges.available_products()
