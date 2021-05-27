@@ -72,20 +72,20 @@ defmodule Cointrader.HistoricalTest do
 
   end
 
-  describe "clear/1" do
-    test "clears the trades map", %{hist_all: historical} do
-      bitstamp_product = bitstamp_btc_usd_product()
+  # describe "clear/1" do
+  #   test "clears the trades map", %{hist_all: historical} do
+  #     bitstamp_product = bitstamp_btc_usd_product()
 
-      bitstamp_product
-        |> build_valid_trade()
-        |> broadcast_trade()
+  #     bitstamp_product
+  #       |> build_valid_trade()
+  #       |> broadcast_trade()
 
-      refute is_nil( Historical.get_last_trade(historical, bitstamp_product) )
+  #     refute is_nil( Historical.get_last_trade(historical, bitstamp_product) )
 
-      Historical.clear(historical)
+  #     Historical.clear(historical)
 
-      assert is_nil( Historical.get_last_trade(historical, bitstamp_product) )
-    end
+  #     assert is_nil( Historical.get_last_trade(historical, bitstamp_product) )
+  #   end
   end
 
 
