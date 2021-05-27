@@ -20,7 +20,7 @@ defmodule Cointrader.Historical do
   end
 
   def start_link(opts) do
-    {products, opts} = Keyword.pop(opts, :products, []) # defaults to empty list if opts absent
+    {products, opts} = Keyword.pop(opts, :products, Exchnages.available_products()) # defaults to list of products across exchanges
     GenServer.start_link(__MODULE__, products, opts)
   end
 

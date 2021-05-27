@@ -11,6 +11,7 @@ defmodule Cointrader.Application do
       CointraderWeb.Telemetry,
       # Start the PubSub system
       {Phoenix.PubSub, name: Cointrader.PubSub},
+      {Cointrader.Historical, name: Cointrader.Historical},
       # Start the Endpoint (http/https)
       CointraderWeb.Endpoint
       # Start a worker by calling: Cointrader.Worker.start_link(arg)
