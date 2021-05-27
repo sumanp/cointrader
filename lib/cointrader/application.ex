@@ -12,6 +12,7 @@ defmodule Cointrader.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: Cointrader.PubSub},
       {Cointrader.Historical, name: Cointrader.Historical},
+      {Cointrader.Exchanges.Supervisor, name: Cointrader.Exchanges.Supervisor},
       # Start the Endpoint (http/https)
       CointraderWeb.Endpoint
       # Start a worker by calling: Cointrader.Worker.start_link(arg)
