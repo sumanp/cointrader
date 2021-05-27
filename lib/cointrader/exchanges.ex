@@ -7,7 +7,7 @@ defmodule Cointrader.Exchanges do # Exchange context public functions
   ]
 
   # static list, compute only once, at compile time
-  @available_products (for client <- @clients, pair <- client.available_currency_pairs do
+  @available_products (for client <- @clients, pair <- client.available_currency_pairs() do
     Product.new(client.exchange_name(), pair)
   end)
 
