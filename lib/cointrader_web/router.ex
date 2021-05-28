@@ -17,7 +17,8 @@ defmodule CointraderWeb.Router do
   scope "/", CointraderWeb do
     pipe_through :browser
 
-    get "/", ProductController, :index
+    # get "/", ProductController, :index
+    live "/", CryptoDashboardLive
   end
 
   # Other scopes may use custom stacks.
