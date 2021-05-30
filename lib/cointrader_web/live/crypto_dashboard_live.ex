@@ -11,7 +11,7 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
       |> Enum.map(& {&1.product, &1})
       |> Enum.into(%{})
 
-    if socket.connected? do
+    if socket.connected? do # socket connection is false before the hand-shake
       Enum.each(products, &Cointrader.subscribe_to_trades(&1))
     end
 
