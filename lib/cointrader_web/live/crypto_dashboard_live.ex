@@ -20,34 +20,12 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
   end
 
   @impl true
-  def render(assigns) do
-    ~L"""
-    <table>
-      <thead>
-        <th>Traded at</th>
-        <th>Exchange</th>
-        <th>Currency</th>
-        <th>Price</th>
-        <th>Volume</th>
-      </thead>
-      <tbody>
-      <%= for product <- @products, trade = @trades[product] do%>
-        <tr>
-          <td><%= trade.traded_at %></td>
-          <td><%= trade.product.exchange_name %></td>
-          <td><%= trade.product.currency_pair %></td>
-          <td><%= trade.price %></td>
-          <td><%= trade.volume %></td>
-        </tr>
-      <% end %>
-      </tbody>
-    </table>
-    """
-  end
-
-  @impl true
   def handle_info({:new_trade, trade}, socket) do # view re-render with change in assign
-    socket = update(socket, :trades, &Map.put(&1, trade.product, trade))
+    socket =
+      socket
+      |> update(:trades, &Map.put(&1, trade.product, trade))
+      |> assign(:page_title, "Product List")
+
     {:noreply, socket}
   end
 end
