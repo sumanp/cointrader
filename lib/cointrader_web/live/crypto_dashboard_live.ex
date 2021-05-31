@@ -1,21 +1,10 @@
 defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their own process
   use CointraderWeb, :live_view
+  alias Cointrader.Product
 
   @impl true
   def mount(_params, _session, socket) do # entry point
-    products = Cointrader.available_products()
-    trades =
-      products
-      |> Cointrader.get_last_trades()
-      |> Enum.reject(&is_nil(&1))
-      |> Enum.map(& {&1.product, &1})
-      |> Enum.into(%{})
-
-    if socket.connected? do # socket connection is false before the hand-shake
-      Enum.each(products, &Cointrader.subscribe_to_trades(&1))
-    end
-
-    socket = assign(socket, trades: trades, products: products)
+    socket = assign(socket, trades: %{}, products: [])
     {:ok, socket}
   end
 
@@ -27,5 +16,35 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
       |> assign(:page_title, "Product List")
 
     {:noreply, socket}
+  end
+
+
+  def handle_event("add-product", %{"exchange" => exchange, "pair" => pair} =_params, socket) do
+    product = Product.new(exchange, pair)
+    socket = maybe_add_product(socket, product)
+    {:noreply, socket}
+  end
+
+  def handle_event("clear", _event, socket) do
+    socket = assign(socket, :trades, %{})
+    {:noreply, socket}
+  end
+
+  def add_product(socket, product) do
+    Cointrader.subscribe_to_trades(product)
+    socket
+    |> update(:products, & &1 ++ [product])
+    |> update(:trades, fn trades ->
+      trade = Cointrader.get_last_trade(product)
+      Map.put(trades, product, trade)
+    end)
+  end
+
+  defp maybe_add_product(socket, product) do
+    if product not in socket.assigns.products do
+      add_product(socket, product)
+    else
+      socket
+    end
   end
 end
