@@ -4,7 +4,7 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
 
   @impl true
   def mount(_params, _session, socket) do # entry point
-    socket = assign(socket, trades: %{}, products: [])
+    socket = assign(socket, trades: %{}, products: [], filter_products: & &1)
     {:ok, socket}
   end
 
@@ -43,9 +43,25 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
 
   defp maybe_add_product(socket, product) do
     if product not in socket.assigns.products do
-      add_product(socket, product)
+      socket
+      |> add_product(product)
+      |> put_flash(
+        :info,
+        "#{product.exchange_name} - #{product.currency_pair} added successfully"
+      )
     else
       socket
+      |> put_flash(:error, "The product was already added")
     end
+  end
+
+  def handle_event("filter-products", %{"search" => search}, socket) do
+    socket =
+      assign(socket, :filter_products, fn product ->
+        String.downcase(product.exchange_name) =~ String.downcase(search) or
+          String.downcase(product.currency_pair) =~ String.downcase(search)
+      end)
+
+    {:noreply, socket}
   end
 end

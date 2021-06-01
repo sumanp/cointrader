@@ -12,8 +12,14 @@
 		<% end %>
 	</select>
 
-	<input type="submit" value="Add product">
+	<button type="submit" phx-disable-with="Loading...">
+		Add product
+	</button>
 </form>
+
+  <form action="#" phx-change="filter-products">
+    <input type="text" name="search">
+  </form>
 
 <table>
 	<thead>
@@ -24,7 +30,7 @@
 		<th>Volume</th>
 	</thead>
 	<tbody>
-	<%= for product <- @products, trade = @trades[product] do%>
+	<%= for product <- @products, @filter_products.(product), trade = @trades[product] do%>
 		<tr>
 			<td><%= trade.traded_at %></td>
 			<td><%= trade.product.exchange_name %></td>
