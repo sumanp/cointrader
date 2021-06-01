@@ -1,6 +1,20 @@
-<button phx-click="add-product"
+<%# <button phx-click="add-product"
 	phx-value-exchange="coinbase"
-	phx-value-pair="BTC-USD">Add Coinbase BTC-USD</button>
+	phx-value-pair="BTC-USD">Add Coinbase BTC-USD</button> %>
+
+<form action="#" phx-submit="add-product">
+	<select name="product_id">
+		<option selected disabled>Add a Crypto Product</option>
+		<%= for product <- Cointrader.available_products() do %>
+			<option value="<%= to_string(product) %>">
+				<%= product.exchange_name %> - <%= product.currency_pair %>
+			</option>
+		<% end %>
+	</select>
+
+	<input type="submit" value="Add product">
+</form>
+
 <table>
 	<thead>
 		<th>Traded at</th>

@@ -19,8 +19,9 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
   end
 
 
-  def handle_event("add-product", %{"exchange" => exchange, "pair" => pair} =_params, socket) do
-    product = Product.new(exchange, pair)
+  def handle_event("add-product", %{"product_id" => product_id} =_params, socket) do
+    [exchange_name, currency_pair] = String.split(product_id, ":")
+    product = Product.new(exchange_name, currency_pair)
     socket = maybe_add_product(socket, product)
     {:noreply, socket}
   end
