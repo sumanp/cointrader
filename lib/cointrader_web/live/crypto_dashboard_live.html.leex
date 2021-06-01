@@ -18,7 +18,7 @@
 </form>
 
   <form action="#" phx-change="filter-products">
-    <input type="text" name="search">
+		<input phx-debounce="300" type="text" name="search">
   </form>
 
 <table>
