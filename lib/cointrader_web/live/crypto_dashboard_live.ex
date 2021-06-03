@@ -1,6 +1,7 @@
 defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their own process
   use CointraderWeb, :live_view
   alias Cointrader.Product
+  import CointraderWeb.ProductHelpers
 
   @impl true
   def mount(_params, _session, socket) do # entry point
