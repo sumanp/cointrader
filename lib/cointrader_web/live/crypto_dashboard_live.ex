@@ -18,7 +18,7 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
     {:noreply, socket}
   end
 
-
+  @impl true
   def handle_event("add-product", %{"product_id" => product_id} =_params, socket) do
     [exchange_name, currency_pair] = String.split(product_id, ":")
     product = Product.new(exchange_name, currency_pair)
@@ -28,6 +28,16 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
 
   def handle_event("clear", _event, socket) do
     socket = assign(socket, :trades, %{})
+    {:noreply, socket}
+  end
+
+  def handle_event("filter-products", %{"search" => search}, socket) do
+    socket =
+      assign(socket, :filter_products, fn product ->
+        String.downcase(product.exchange_name) =~ String.downcase(search) or
+          String.downcase(product.currency_pair) =~ String.downcase(search)
+      end)
+
     {:noreply, socket}
   end
 
@@ -53,15 +63,5 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
       socket
       |> put_flash(:error, "The product was already added")
     end
-  end
-
-  def handle_event("filter-products", %{"search" => search}, socket) do
-    socket =
-      assign(socket, :filter_products, fn product ->
-        String.downcase(product.exchange_name) =~ String.downcase(search) or
-          String.downcase(product.currency_pair) =~ String.downcase(search)
-      end)
-
-    {:noreply, socket}
   end
 end
