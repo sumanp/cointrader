@@ -1,25 +1,28 @@
-<%# <button phx-click="add-product"
-	phx-value-exchange="coinbase"
-	phx-value-pair="BTC-USD">Add Coinbase BTC-USD</button> %>
+<div class="cointrader-toolbar">
+  <div class="title">Cointrader</div>
 
-<form action="#" phx-submit="add-product">
-	<select name="product_id">
-		<option selected disabled>Add a Crypto Product</option>
-		<%= for product <- Cointrader.available_products() do %>
-			<option value="<%= to_string(product) %>">
-				<%= product.exchange_name %> - <%= product.currency_pair %>
-			</option>
-		<% end %>
-	</select>
 
-	<button type="submit" phx-disable-with="Loading...">
-		Add product
-	</button>
-</form>
+  <form action="#" phx-submit="add-product">
+    <select name="product_id" class="select-product">
 
-<form action="#" phx-change="filter-products">
-	<input phx-debounce="300" type="text" name="search">
-</form>
+    <option selected disabled>Add a Crypto Product</option>
+
+    <%= for {exchange_name, products} <- grouped_products_by_exchange_name() do %>
+      <optgroup label="<%= exchange_name %>">
+        <%= for product <- products do %>
+          <option value="<%= to_string(product) %>">
+              <%= crypto_name(product) %>
+              -
+              <%= fiat_character(product) %>
+          </option>
+        <% end %>
+      </optgroup>
+    <% end %>
+    </select>
+
+    <input type="submit" value="+" />
+  </form>
+</div>
 
 
 <%= for product <- @products, @filter_products.(product), trade = @trades[product] do%>

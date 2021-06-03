@@ -51,4 +51,9 @@ defmodule CointraderWeb.ProductHelpers do
     %{crypto_symbol: crypto_symbol, fiat_symbol: fiat_symbol}
   end
 
+  def grouped_products_by_exchange_name do
+    Cointrader.available_products()
+    |> Enum.group_by(& &1.exchange_name)
+  end
+
 end
