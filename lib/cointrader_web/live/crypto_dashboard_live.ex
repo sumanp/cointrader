@@ -56,13 +56,8 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
     if product not in socket.assigns.products do
       socket
       |> add_product(product)
-      |> put_flash(
-        :info,
-        "#{product.exchange_name} - #{product.currency_pair} added successfully"
-      )
     else
       socket
-      |> put_flash(:error, "The product was already added")
     end
   end
 end
