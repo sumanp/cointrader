@@ -24,8 +24,9 @@
   </form>
 </div>
 
-
-<%= for product <- @products, @filter_products.(product), trade = @trades[product] do%>
-  <%= live_component @socket, CointraderWeb.ProductComponent,
-                      product: product, trade: trade %>
-<% end %>
+<div class="product-components-container">
+  <%= for product <- @products, @filter_products.(product), trade = @trades[product] do%>
+    <%= live_component @socket, CointraderWeb.ProductComponent,
+                        product: product, trade: trade %>
+  <% end %>
+</div>

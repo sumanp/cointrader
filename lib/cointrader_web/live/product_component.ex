@@ -3,8 +3,8 @@ defmodule CointraderWeb.ProductComponent do
   import CointraderWeb.ProductHelpers
 
   # optional callbacks for stateless components
-  # def mount(socket)
-  # def update(assigns, socket)
+  # def mount(socket) # use: intialise some data or log
+  # def update(assigns, socket) # use: transform assigns data or add new assigns
 
   def render(assigns) do
     ~L"""
