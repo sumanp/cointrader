@@ -5,17 +5,13 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
 
   @impl true
   def mount(_params, _session, socket) do # entry point
-    socket = assign(socket, trades: %{}, products: [], filter_products: & &1)
+    socket = assign(socket, products: [], filter_products: & &1)
     {:ok, socket}
   end
 
   @impl true
   def handle_info({:new_trade, trade}, socket) do # view re-render with change in assign
-    socket =
-      socket
-      |> update(:trades, &Map.put(&1, trade.product, trade))
-      |> assign(:page_title, "Product List")
-
+    send_update(CointraderWeb.ProductComponent, id: trade.product, trade: trade)
     {:noreply, socket}
   end
 
@@ -46,10 +42,6 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
     Cointrader.subscribe_to_trades(product)
     socket
     |> update(:products, & &1 ++ [product])
-    |> update(:trades, fn trades ->
-      trade = Cointrader.get_last_trade(product)
-      Map.put(trades, product, trade)
-    end)
   end
 
   defp maybe_add_product(socket, product) do
