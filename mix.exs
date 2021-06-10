@@ -45,7 +45,9 @@ defmodule Cointrader.MixProject do
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
       {:gun, "~> 1.3"},
-      {:cowlib, "~> 2.9.1", override: true}
+      {:tzdata, "~> 1.1"},
+      {:cowlib, "~> 2.9.1", override: true},
+      {:dialyxir, "~> 1.0", only: [:dev], runtime: false}
     ]
   end
 
