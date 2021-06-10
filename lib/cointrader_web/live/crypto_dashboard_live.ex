@@ -38,6 +38,12 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
     {:noreply, socket}
   end
 
+  def handle_event("remove-product", %{"product-id" => product_id} = _params, socket) do
+    product = product_from_string(product_id)
+    socket = update(socket, :products, &List.delete(&1, product))
+    {:noreply, socket}
+  end
+
   def add_product(socket, product) do
     Cointrader.subscribe_to_trades(product)
     socket
@@ -51,5 +57,10 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
     else
       socket
     end
+  end
+
+  defp product_from_string(product_id) do
+    [exchange_name, currency_pair] = String.split(product_id, ":")
+    Product.new(exchange_name, currency_pair)
   end
 end

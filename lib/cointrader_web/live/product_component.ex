@@ -24,6 +24,8 @@ defmodule CointraderWeb.ProductComponent do
   def render(%{trade: trade}=assigns) when not is_nil(trade) do
     ~L"""
       <div class="product-component">
+        <button class="remove" phx-click="remove-product"
+          phx-value-product-id="<%= to_string(@product)%>">X</button>
         <div class="currency-container">
           <img class="icon" src="<%= crypto_icon(@socket, @product) %>" />
           <div class="crypto-name">
