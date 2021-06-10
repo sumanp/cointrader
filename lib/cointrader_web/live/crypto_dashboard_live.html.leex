@@ -27,7 +27,7 @@
 <div class="product-components-container">
   <%= for product <- @products, @filter_products.(product) do%>
     <%= live_component @socket, CointraderWeb.ProductComponent,
-                        id: product %>
+                        id: product, timezone: @timezone %>
 
   <% end %>
 </div>

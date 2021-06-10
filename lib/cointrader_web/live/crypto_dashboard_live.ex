@@ -5,7 +5,8 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
 
   @impl true
   def mount(_params, _session, socket) do # entry point
-    socket = assign(socket, products: [], filter_products: & &1)
+    socket = assign(socket, products: [], filter_products: & &1,
+              timezone: get_timezone_from_connection(socket))
     {:ok, socket}
   end
 
@@ -62,5 +63,12 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
   defp product_from_string(product_id) do
     [exchange_name, currency_pair] = String.split(product_id, ":")
     Product.new(exchange_name, currency_pair)
+  end
+
+  defp get_timezone_from_connection(socket) do
+    case get_connect_params(socket) do
+      %{"timezone" => tz} when not is_nil(tz) -> tz
+      _ -> "UTC"
+    end
   end
 end

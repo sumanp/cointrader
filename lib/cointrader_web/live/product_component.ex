@@ -14,7 +14,8 @@ defmodule CointraderWeb.ProductComponent do
     socket =
       assign(socket,
         product: product,
-        trade: Cointrader.get_last_trade(product)
+        trade: Cointrader.get_last_trade(product),
+        timezone: assigns.timezone
       )
     {:ok, socket}
   end
@@ -53,7 +54,7 @@ defmodule CointraderWeb.ProductComponent do
         </div>
 
         <div class="trade-time">
-          <%= human_datetime(@trade.traded_at) %>
+          <%= human_datetime(@trade.traded_at, @timezone) %>
         </div>
       </div>
     """
