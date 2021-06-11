@@ -49,6 +49,17 @@ defmodule CointraderWeb.ProductComponent do
           </div>
         </div>
 
+        <div class="chart-component">
+          <div phx-hook="Chart" id="#{@product}"
+            data-price="<%= @trade.price %>"
+            data-traded-at="<%= DateTime.to_unix(@trade.traded_at) %>"
+          >
+            <div class="chart-container">
+
+            </div>
+          </div>
+        </div>
+
         <div class="exchange-name">
           <%= @product.exchange_name %>
         </div>
