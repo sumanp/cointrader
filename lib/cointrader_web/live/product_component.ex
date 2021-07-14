@@ -36,9 +36,7 @@ defmodule CointraderWeb.ProductComponent do
       <div class="currency-container">
         <img class="icon" src="<%= crypto_icon(@socket, @product) %>" />
         <div class="crypto-name">
-          <%= live_patch crypto_name(@product),
-            to: Routes.live_path(@socket, CointraderWeb.CryptoDashboardLive,
-            product_id: to_string(@product)) %>
+          <%= crypto_name(@product) %>
         </div>
       </div>
 
