@@ -11,8 +11,26 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
   end
 
   @impl true
+  def handle_params(%{"product_id" => product_id}=_params, _uri, socket) do
+    product = product_from_string(product_id)
+    socket =
+      socket
+      |> assign(:selected_product, product) # update socket
+      |> maybe_update_title_with_trade(Cointrader.get_last_trade(product)) # update socket
+
+    {:noreply, socket}
+  end
+
+  def handle_params(_params, _uri, socket), do: {:noreply, socket}
+
+  @impl true
   def handle_info({:new_trade, trade}, socket) do # view re-render with change in assign
     send_update(CointraderWeb.ProductComponent, id: trade.product, trade: trade)
+
+    socket =
+      socket
+      |> maybe_update_title_with_trade(trade)
+
     {:noreply, socket}
   end
 
@@ -71,4 +89,10 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
       _ -> "UTC"
     end
   end
+
+  defp maybe_update_title_with_trade(%{assigns: %{selected_product: product}}=socket, %{product: product}=trade) do
+    assign(socket, :page_title, "#{trade.price} - #{product.currency_pair}")
+  end
+
+  defp maybe_update_title_with_trade(socket, _trade), do: socket
 end
