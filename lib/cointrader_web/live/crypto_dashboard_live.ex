@@ -2,12 +2,18 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
   use CointraderWeb, :live_view
   alias Cointrader.Product
   import CointraderWeb.ProductHelpers
+  alias CointraderWeb.Router.Helpers, as: Routes
 
   @impl true
   def mount(_params, _session, socket) do # entry point
     socket = assign(socket, products: [], filter_products: & &1,
               timezone: get_timezone_from_connection(socket))
     {:ok, socket}
+  end
+
+  @impl true
+  def handle_params(_params, _uri, socket) do
+    {:noreply, socket}
   end
 
   @impl true
@@ -20,7 +26,10 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
   def handle_event("add-product", %{"product_id" => product_id} =_params, socket) do
     [exchange_name, currency_pair] = String.split(product_id, ":")
     product = Product.new(exchange_name, currency_pair)
-    socket = maybe_add_product(socket, product)
+    socket =
+      socket
+      |> maybe_add_product(product)
+      |> update_products_params()
     {:noreply, socket}
   end
 
@@ -41,7 +50,11 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
 
   def handle_event("remove-product", %{"product-id" => product_id} = _params, socket) do
     product = product_from_string(product_id)
-    socket = update(socket, :products, &List.delete(&1, product))
+    Cointrader.unsubscribe_from_trades(product)
+    socket =
+      socket
+      |> update(:products, &List.delete(&1, product))
+      |> update_products_params()
     {:noreply, socket}
   end
 
@@ -70,5 +83,10 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
       %{"timezone" => tz} when not is_nil(tz) -> tz
       _ -> "UTC"
     end
+  end
+
+  defp update_products_params(socket) do
+    product_ids = Enum.map(socket.assigns.products, &to_string/1)
+    push_patch(socket, to: Routes.live_path(socket, __MODULE__, products: product_ids))
   end
 end
