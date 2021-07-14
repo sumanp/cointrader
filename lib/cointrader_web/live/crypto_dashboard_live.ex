@@ -5,9 +5,12 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
   alias CointraderWeb.Router.Helpers, as: Routes
 
   @impl true
-  def mount(_params, _session, socket) do # entry point
-    socket = assign(socket, products: [], filter_products: & &1,
-              timezone: get_timezone_from_connection(socket))
+  def mount(params, _session, socket) do # entry point
+    socket =
+      socket
+      |> assign(products: [], filter_products: & &1, timezone: get_timezone_from_connection(socket))
+      |> add_products_from_params(params)
+
     {:ok, socket}
   end
 
@@ -89,4 +92,15 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
     product_ids = Enum.map(socket.assigns.products, &to_string/1)
     push_patch(socket, to: Routes.live_path(socket, __MODULE__, products: product_ids))
   end
+
+  defp add_products_from_params(socket, %{"products" => product_ids} = _params) when is_list(product_ids) do
+    products = Enum.map(product_ids, &product_from_string/1)
+
+    Enum.reduce(products, socket, fn product, socket ->
+      maybe_add_product(socket, product)
+    end)
+  end
+
+  defp add_products_from_params(socket, _params), do: socket
+
 end
