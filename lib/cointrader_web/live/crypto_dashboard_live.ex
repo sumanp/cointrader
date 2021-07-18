@@ -60,6 +60,10 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
       {:noreply, socket}
   end
 
+  def handle_event("add-product", _, socket) do
+    {:noreply, socket}
+  end
+
   def handle_event("clear", _event, socket) do
     socket = assign(socket, :trades, %{})
     {:noreply, socket}
