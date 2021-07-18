@@ -9,15 +9,32 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
     socket =
       socket
       |> assign(products: [], filter_products: & &1, timezone: get_timezone_from_connection(socket))
-      |> add_products_from_params(params)
 
     {:ok, socket}
   end
 
   @impl true
-  def handle_params(_params, _uri, socket) do
+  def handle_params(%{"product"=> product_ids}=params, _uri, socket) do # always invoked after mount; patch/push triggers the func
+    new_products = Enum.map(product_ids, &product_from_string/1)
+    diff = List.myers_difference(socket.assigns.products, new_products)
+    products_to_remove = diff |> Keyword.get_values(:del) |> List.flatten()
+    products_to_insert = diff |> Keyword.get_values(:ins) |> List.flatten()
+
+    socket =
+      Enum.reduce(products_to_remove, socket, fn product, socket ->
+        remove_product(socket, product)
+      end)
+
+    socket =
+      Enum.reduce(products_to_insert, socket, fn product, socket ->
+        add_product(socket, product)
+      end)
+
     {:noreply, socket}
   end
+
+  def handle_params(_params, _uri, socket), do: {:noreply, socket}
+
 
   @impl true
   def handle_info({:new_trade, trade}, socket) do # view re-render with change in assign
@@ -27,13 +44,16 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
 
   @impl true
   def handle_event("add-product", %{"product_id" => product_id} =_params, socket) do
-    [exchange_name, currency_pair] = String.split(product_id, ":")
-    product = Product.new(exchange_name, currency_pair)
-    socket =
-      socket
-      |> maybe_add_product(product)
-      |> update_products_params()
-    {:noreply, socket}
+    product_ids =
+      socket.assigns.products
+      |> Enum.map(&to_string/1)
+      |> Kernel.++([product_id]) # update existing list
+      |> Enum.uniq()
+
+    socket = push_patch(socket,
+      to: Routes.live_path(socket, __MODULE__, products: product_ids))
+
+      {:noreply, socket}
   end
 
   def handle_event("clear", _event, socket) do
@@ -64,16 +84,13 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
   def add_product(socket, product) do
     Cointrader.subscribe_to_trades(product)
     socket
-    |> update(:products, & &1 ++ [product])
+    |> update(:products, &(&1 ++ [product]))
   end
 
-  defp maybe_add_product(socket, product) do
-    if product not in socket.assigns.products do
-      socket
-      |> add_product(product)
-    else
-      socket
-    end
+  def remove_product(socket, product) do
+    Cointrader.unsubscribe_to_trades(product)
+    socket
+    |> update(:products, &(&1 -- [product]))
   end
 
   defp product_from_string(product_id) do
@@ -92,15 +109,4 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
     product_ids = Enum.map(socket.assigns.products, &to_string/1)
     push_patch(socket, to: Routes.live_path(socket, __MODULE__, products: product_ids))
   end
-
-  defp add_products_from_params(socket, %{"products" => product_ids} = _params) when is_list(product_ids) do
-    products = Enum.map(product_ids, &product_from_string/1)
-
-    Enum.reduce(products, socket, fn product, socket ->
-      maybe_add_product(socket, product)
-    end)
-  end
-
-  defp add_products_from_params(socket, _params), do: socket
-
 end
