@@ -3,6 +3,7 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
   alias Cointrader.Product
   import CointraderWeb.ProductHelpers
   alias CointraderWeb.Router.Helpers, as: Routes
+  require Logger
 
   @impl true
   def mount(_params, _session, socket) do # entry point
@@ -14,7 +15,7 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
   end
 
   @impl true
-  def handle_params(%{"product"=> product_ids}=_params, _uri, socket) do # always invoked after mount; patch/push triggers the func
+  def handle_params(%{"products" => product_ids} = _params, _uri, socket) do
     new_products = Enum.map(product_ids, &product_from_string/1)
     diff = List.myers_difference(socket.assigns.products, new_products)
     products_to_remove = diff |> Keyword.get_values(:del) |> List.flatten()
@@ -33,7 +34,10 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
     {:noreply, socket}
   end
 
-  def handle_params(_params, _uri, socket), do: {:noreply, socket}
+  def handle_params(params, _uri, socket) do
+    Logger.debug("Unhandled params: #{inspect(params)}")
+    {:noreply, socket}
+  end
 
 
   @impl true
