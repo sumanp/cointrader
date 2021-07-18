@@ -84,6 +84,7 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
       socket.assigns.products
       |> Enum.map(&to_string/1)
       |> Kernel.--([product_id]) # remove & update existing list
+      |> Enum.uniq()
 
     socket = push_patch(socket,
       to: Routes.live_path(socket, __MODULE__, products: product_ids))
