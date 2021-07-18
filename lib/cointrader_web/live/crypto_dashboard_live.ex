@@ -80,9 +80,6 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
   end
 
   def handle_event("remove-product", %{"product-id" => product_id} = _params, socket) do
-    product = product_from_string(product_id)
-    Cointrader.unsubscribe_from_trades(product)
-
     product_ids =
       socket.assigns.products
       |> Enum.map(&to_string/1)
