@@ -15,7 +15,7 @@ defmodule CointraderWeb.ProductLive do
         page_title: page_title_from_trade(trade)
       )
 
-    if socket.connected? do
+    if socket.connected? do # subscribe to new trades: handled by handle_info/2 callback
       Cointrader.subscribe_to_trades(product)
     end
 
