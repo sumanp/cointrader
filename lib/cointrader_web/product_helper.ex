@@ -1,5 +1,6 @@
 #lib/poeticoins_web/product_helpers.ex
 defmodule CointraderWeb.ProductHelpers do
+  alias Cointrader.Product
 
   def human_datetime(datetime, timezone \\ "UTC") do
     datetime
@@ -56,6 +57,11 @@ defmodule CointraderWeb.ProductHelpers do
   def grouped_products_by_exchange_name do
     Cointrader.available_products()
     |> Enum.group_by(& &1.exchange_name)
+  end
+
+  def product_from_string(product_id) do
+    [exchange_name, currency_pair] = String.split(product_id, ":")
+    Product.new(exchange_name, currency_pair)
   end
 
 end

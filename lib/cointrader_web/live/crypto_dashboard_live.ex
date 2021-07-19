@@ -1,6 +1,5 @@
 defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their own process
   use CointraderWeb, :live_view
-  alias Cointrader.Product
   import CointraderWeb.ProductHelpers
   alias CointraderWeb.Router.Helpers, as: Routes
   require Logger
@@ -102,11 +101,6 @@ defmodule CointraderWeb.CryptoDashboardLive do #each concurrent user has their o
     Cointrader.unsubscribe_from_trades(product)
     socket
     |> update(:products, &(&1 -- [product]))
-  end
-
-  defp product_from_string(product_id) do
-    [exchange_name, currency_pair] = String.split(product_id, ":")
-    Product.new(exchange_name, currency_pair)
   end
 
   defp get_timezone_from_connection(socket) do
