@@ -19,6 +19,7 @@ defmodule CointraderWeb.Router do
 
     # get "/", ProductController, :index
     live "/", CryptoDashboardLive
+    live "/products/:id", ProductLive
   end
 
   # Other scopes may use custom stacks.

@@ -36,7 +36,7 @@ defmodule CointraderWeb.ProductComponent do
       <div class="currency-container">
         <img class="icon" src="<%= crypto_icon(@socket, @product) %>" />
         <div class="crypto-name">
-          <%= crypto_name(@product) %>
+          <%= live_redirect crypto_name(@product), to: Routes.live_path(@socket, CointraderWeb.ProductLive, to_string(@product)) %>
         </div>
       </div>
 
@@ -82,7 +82,7 @@ defmodule CointraderWeb.ProductComponent do
       <div class="currency-container">
         <img class="icon" src="<%= crypto_icon(@socket, @product) %>" />
         <div class="crypto-name">
-          <%= crypto_name(@product) %>
+          <%= live_redirect crypto_name(@product), to: Routes.live_path(@socket, CointraderWeb.ProductLive, to_string(@product)) %>
         </div>
       </div>
 
