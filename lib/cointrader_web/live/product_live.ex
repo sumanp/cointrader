@@ -38,7 +38,7 @@ defmodule CointraderWeb.ProductLive do
             <th>Volume</th>
           </thead>
           <tbody phx-update="prepend" id="trade-history-rows">
-            <tr>
+            <tr id="<%= @trade.traded_at %>">
               <td><%= @trade.traded_at %></td>
               <td><%= @trade.price %></td>
               <td><%= @trade.volume %></td>
