@@ -6,13 +6,14 @@ defmodule CointraderWeb.ProductLive do
   def mount(%{"id" => product_id} = _params, _session, socket) do
     product = product_from_string(product_id)
     trade = Cointrader.get_last_trade(product)
+    trades = get_trade_history()
 
     socket =
       assign(socket,
         product: product,
         product_id: product_id,
         trade: trade,
-        trades: [],
+        trades: trades,
         page_title: page_title_from_trade(trade)
       )
 
@@ -20,7 +21,7 @@ defmodule CointraderWeb.ProductLive do
       Cointrader.subscribe_to_trades(product)
     end
 
-    {:ok, socket}
+    {:ok, socket, temporary_assigns: [trades: []]} #reset/empty trade list on each render
   end
 
   def render(%{trade: trade} = assigns) when not is_nil(trade) do
@@ -38,11 +39,13 @@ defmodule CointraderWeb.ProductLive do
             <th>Volume</th>
           </thead>
           <tbody phx-update="prepend" id="trade-history-rows">
-            <tr id="<%= @trade.traded_at %>">
-              <td><%= @trade.traded_at %></td>
-              <td><%= @trade.price %></td>
-              <td><%= @trade.volume %></td>
-            </tr>
+            <%= for trade <- @trades do %>
+              <tr id="trade-<%= timestamp(trade.traded_at) %>">
+                <td><%= trade.traded_at %></td>
+                <td><%= trade.price %></td>
+                <td><%= trade.volume %></td>
+              </tr>
+            <% end %>
           </tbody>
         </table>
       </div>
@@ -62,8 +65,8 @@ defmodule CointraderWeb.ProductLive do
     socket =
       socket
       |> assign(:trade, trade)
+      |> update(:trades, & [trade | &1])
       |> assign(:page_title, page_title_from_trade(trade))
-      |> update(:trades, & [trade | &1]) #prepend trade in the list
 
     {:noreply, socket}
   end
@@ -71,5 +74,13 @@ defmodule CointraderWeb.ProductLive do
   defp page_title_from_trade(trade) do
     "#{fiat_character(trade.product)}#{trade.price}" <>
       " #{trade.product.currency_pair} #{trade.product.exchange_name}"
+  end
+
+  defp timestamp(dt) do
+    DateTime.to_unix(dt, :millisecond)
+  end
+
+  defp get_trade_history do
+    []
   end
 end
