@@ -12,6 +12,7 @@ defmodule CointraderWeb.ProductLive do
         product: product,
         product_id: product_id,
         trade: trade,
+        trades: [],
         page_title: page_title_from_trade(trade)
       )
 
@@ -27,6 +28,24 @@ defmodule CointraderWeb.ProductLive do
     <div>
       <h1><%= fiat_character(@product) %> <%= @trade.price %></h1>
       <p>Traded at <%= human_datetime(@trade.traded_at) %></p>
+    </div>
+    <div class="column">
+      <div class="column">
+        <table>
+          <thead>
+            <th>Time</th>
+            <th>Price</th>
+            <th>Volume</th>
+          </thead>
+          <tbody phx-update="prepend" id="trade-history-rows">
+            <tr>
+              <td><%= @trade.traded_at %></td>
+              <td><%= @trade.price %></td>
+              <td><%= @trade.volume %></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
     """
   end
@@ -44,6 +63,7 @@ defmodule CointraderWeb.ProductLive do
       socket
       |> assign(:trade, trade)
       |> assign(:page_title, page_title_from_trade(trade))
+      |> update(:trades, & [trade | &1]) #prepend trade in the list
 
     {:noreply, socket}
   end
