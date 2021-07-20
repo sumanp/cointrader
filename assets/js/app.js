@@ -17,9 +17,11 @@ import {Socket} from "phoenix"
 import topbar from "topbar"
 import {LiveSocket} from "phoenix_live_view"
 import { ChartHook } from "./chart"
+import { TradeHistoryHook } from "./tradeHistory"
 
 let Hooks = {
-  Chart: ChartHook // load callbacks
+  Chart: ChartHook, // load callbacks
+  TradeHistory: TradeHistoryHook
 }
 
 let timezone = Intl.DateTimeFormat().resolvedOptions().timeZone

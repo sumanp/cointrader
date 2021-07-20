@@ -38,7 +38,7 @@ defmodule CointraderWeb.ProductLive do
             <th>Price</th>
             <th>Volume</th>
           </thead>
-          <tbody phx-update="prepend" id="trade-history-rows">
+          <tbody phx-hook="TradeHistory" phx-update="prepend" id="trade-history-rows">
             <%= for trade <- @trades do %>
               <tr id="trade-<%= timestamp(trade.traded_at) %>">
                 <td><%= trade.traded_at %></td>
