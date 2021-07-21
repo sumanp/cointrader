@@ -8,14 +8,30 @@ defmodule Cointrader.Historical do
 
   @ets_table_name :historical
 
-  @spec get_last_trade(pid() | atom(), Product.t()) :: Trade.t() | nil
-  def get_last_trade(pid\\__MODULE__, product) do # public API to fetch last trade of currency pair
-    GenServer.call(pid, {:get_last_trade, product})
+  @spec get_last_trade(Product.t()) :: Trade.t() | nil
+  def get_last_trade(product) do # public API to fetch last trade of currency pair
+    case :ets.lookup(@ets_table_name, product) do
+      [{^product, trade}] -> trade
+      [] -> nil
+    end
   end
 
-  @spec get_last_trades(pid() | atom(), [Product.t()]) :: [Trade.t()]
-  def get_last_trades(pid\\__MODULE__, products) do
-    GenServer.call(pid, {:get_last_trades, products})
+  @spec get_last_trades([Product.t()]) :: [Trade.t()]
+  def get_last_trades(products) do
+    or_condition =
+      Enum.reduce(products, {:or}, fn product, acc ->
+        Tuple.append(acc, {:==, :"$1", product})
+      end)
+
+    ms = [
+      {
+        {:"$1", :"$2"},
+        [or_condition],
+        [:"$2"]
+      }
+    ]
+
+    :ets.select(@ets_table_name, ms)
   end
 
   def start_link(opts) do
@@ -35,14 +51,8 @@ defmodule Cointrader.Historical do
   end
 
   def handle_info({:new_trade, trade}, historical) do
-    updated_trades = Map.put(historical.trades, trade.product, trade)
-    updated_historical = %{historical | trades: updated_trades}
-    {:noreply, updated_historical}
-  end
-
-  def handle_call({:get_last_trade, product}, _from, historical) do # call expects 3 arguments
-    trade = Map.get(historical.trades, product)
-    {:reply, trade, historical}
+    :ets.insert(@ets_table_name, {trade.product, trade})
+    {:noreply, historical}
   end
 
   def handle_call({:get_last_trades, products}, _from, historical) do # call expects 3 arguments
