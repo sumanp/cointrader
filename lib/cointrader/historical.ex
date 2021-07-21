@@ -2,12 +2,11 @@ defmodule Cointrader.Historical do
   use GenServer
   alias Cointrader.{Product, Trade, Exchanges}
 
-  @type t() :: %__MODULE__{
-    products: [Product.t()],
-    trades: %{Product.t() => Trade.t()}
-  }
+  @type t() :: %__MODULE__{ products: [Product.t()] }
 
-  defstruct [:products, :trades]
+  defstruct [:products]
+
+  @ets_table_name :historical
 
   @spec get_last_trade(pid() | atom(), Product.t()) :: Trade.t() | nil
   def get_last_trade(pid\\__MODULE__, product) do # public API to fetch last trade of currency pair
@@ -24,8 +23,9 @@ defmodule Cointrader.Historical do
     GenServer.start_link(__MODULE__, products, opts)
   end
 
-  def init(products) do
-    historical = %__MODULE__{products: products, trades: %{}}
+  def init(products) do #table is owned by the process that created it; also process dependent deletion
+    :ets.new(@ets_table_name, [:set, :protected, :named_table]) # can act as a queue
+    historical = %__MODULE__{products: products}
     {:ok, historical, {:continue, :subscribe}}
   end
 
